@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motivasyon Butonu</title>
+<style>
+  :root {
+    --bg-light: #f0f8ff;
+    --text-light: #333;
+    --bg-dark: #000;
+    --text-dark: #fff;
+  }
+
+  body[data-theme="light"] {
+    background-color: var(--bg-light);
+    color: var(--text-light);
+  }
+
+  body[data-theme="dark"] {
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 50px;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* Tema toggle butonu */
+  #themeToggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #888;
+    color: #fff;
+    transition: background-color 0.3s;
+  }
+
+  #themeToggle:hover {
+    background-color: #555;
+  }
+
+  /* Motivasyon butonu */
+  #btnImg {
+    width: 300px; 
+    height: auto;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+
+  #btnImg:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+
+  #motivation {
+    margin-top: 30px;
+    font-size: 24px;
+    max-width: 90%;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  #motivation.show {
+    opacity: 1;
+  }
+</style>
+</head>
+<body data-theme="dark">
+
+<button id="themeToggle">Aydınlık Mod</button>
+
+<img src="kirmizibuton.png" id="btnImg">
+
+<div id="motivation">Motivasyonun için butona bas!</div>
+
+<script>
+let quotes = []; // API’den çekeceğimiz motivasyon sözleri
+
+// Tema toggle
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('click', () => {
+  const body = document.body;
+  if (body.dataset.theme === 'dark') {
+    body.dataset.theme = 'light';
+    themeToggle.innerText = 'Koyu Mod';
+  } else {
+    body.dataset.theme = 'dark';
+    themeToggle.innerText = 'Aydınlık Mod';
+  }
+});
+
+// Motivasyon sözlerini API’den çek
+async function fetchQuotes() {
+  try {
+    const res = await fetch('https://type.fit/api/quotes');
+    const data = await res.json();
+    quotes = data.filter(q => q.text).map(q => q.text);
+  } catch(err) {
+    console.error("Sözler yüklenemedi, fallback kullanılıyor.", err);
+    // Hata olursa fallback sözler
+    quotes = [
+      "Sen bunu yapabilirsin!",
+      "Her gün yeni bir fırsattır.",
+      "Pes etme, başarı yakındır.",
+      "Küçük adımlar büyük fark yaratır."
+    ];
+  }
+}
+
+// Buton tıklayınca rastgele motivasyon göster
+const btn = document.getElementById('btnImg');
+const motDiv = document.getElementById('motivation');
+
+btn.addEventListener('click', () => {
+  if (quotes.length === 0) return;
+  const randomIndex = Math.floor(Math.random() * quotes.length);
+  motDiv.innerText = quotes[randomIndex];
+  motDiv.classList.remove('show');
+  void motDiv.offsetWidth; // Reflow
+  motDiv.classList.add('show');
+});
+
+// Sayfa yüklenince API’den çek
+fetchQuotes();
+</script>
+
+</body>
+</html>
